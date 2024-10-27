@@ -21,12 +21,45 @@ export class TransactionService {
 
   async findAll() {
     this.logger.log('Fetching all transactions');
-    return this.prisma.transaction.findMany();
+    return this.prisma.transaction.findMany({
+      include: {
+        destinationAccount: {
+          select: {
+            number: true,
+          },
+        },
+        sourceAccount: {
+          select: {
+            number: true,
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {
     this.logger.log(`Fetching transaction with id: ${id}`);
-    return this.prisma.transaction.findUnique({ where: { id } });
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id },
+      include: {
+        destinationAccount: {
+          select: {
+            number: true,
+          },
+        },
+        sourceAccount: {
+          select: {
+            number: true,
+          },
+        },
+      },
+    });
+
+    if (transaction === null) {
+      this.logger.warn(`Transaction not found: ${id}`);
+      throw new NotFoundError('Transaction not found');
+    }
+    return transaction;
   }
 
   async transfer(dto: CreateTransferTransactionDto): Promise<string> {

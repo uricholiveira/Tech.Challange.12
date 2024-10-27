@@ -21,7 +21,7 @@ export class AccountController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get account' })
+  @ApiOperation({ summary: 'Get account by id' })
   async findOne(@Param('id') id: string) {
     return await this.accountService.findOne(+id);
   }
